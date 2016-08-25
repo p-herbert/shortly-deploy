@@ -16,7 +16,7 @@ db.once('open', function() {
     timestamps: {type: Date, default: Date.now}
   });
 
-  urlsSchema.method.generateCode = function(url) {
+  urlsSchema.methods.generateCode = function(url) {
     var shasum = crypto.createHash('sha1');
     shasum.update(this.get('url'));
     this.set('code', shasum.digest('hex').slice(0, 5));
@@ -25,7 +25,7 @@ db.once('open', function() {
   var usersSchema = new mongoose.Schema({
     username: String,
     password: String,
-    timestamps: true
+    timestamps: {type: Date, default: Date.now}
   });
 
   usersSchema.methods.comparePassword = function(attemptedPassword, callback) {
