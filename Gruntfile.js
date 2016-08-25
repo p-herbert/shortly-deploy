@@ -3,6 +3,11 @@ module.exports = function(grunt) {
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
     concat: {
+      options: {seperator: ';'},
+      client: { src: ['public/client/**/*.js'],
+                dest: 'public/dist/client.min.js'},
+      libs: { src: ['public/lib/jquery.js', 'public/lib/underscore.js', 'public/lib/backbone.js', 'public/lib/handlebars.js'], 
+             dest: 'public/dist/lib.min.js'}
     },
 
     mochaTest: {
@@ -21,11 +26,18 @@ module.exports = function(grunt) {
     },
 
     uglify: {
+      options: {
+        banner: '/*! <%= pkg.name %> <%= grunt.template.today("yyyy-mm-dd") %> */\n'
+      },
+      dist: {
+        src: 'src/<%= pkg.name %>.js',
+        dest: 'dist/<%= pkg.name %>.min.js'
+      }
     },
 
     eslint: {
       target: [
-        // Add list of files to lint here
+        'server.js', 'server-config.js', 'lib/**/*.js'
       ]
     },
 
@@ -76,7 +88,7 @@ module.exports = function(grunt) {
     'mochaTest'
   ]);
 
-  grunt.registerTask('build', [
+  grunt.registerTask('build', ['concat', 'uglify'
   ]);
 
   grunt.registerTask('upload', function(n) {
