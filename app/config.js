@@ -1,19 +1,26 @@
 var mongoose = require('mongoose');
+var bcrypt = require('bcrypt-nodejs');
+var Promise = require('bluebird');
 
 var db = mongoose.connection;
 
 db.on('error', console.error);
 db.once('open', function() {
+
   var urlsSchema = new mongoose.Schema({
     url: String,
     baseUrl: String,
     code: String,
     title: String,
-    visits: Number,
+    visits: {type: Number, default: 0},
     timestamps: true
   });
 
-  var Link = mongoose.model('Link', urlsSchema);
+  urlsSchema.method.generateCode = function(url) {
+    var shasum = crypto.createHash('sha1');
+    shasum.update(this.get('url'));
+    this.set('code', shasum.digest('hex').slice(0, 5));
+  };
 
   var usersSchema = new mongoose.Schema({
     username: String,
@@ -21,10 +28,70 @@ db.once('open', function() {
     timestamps: true
   });
 
-  var User = mongoose.model('User', usersSchema);
+  usersSchema.methods.comparePassword = function(attemptedPassword, callback) {
+    bcrypt.compare(attemptedPassword, this.password, function(err, isMatch) {
+      callback(isMatch);
+    });  
+  };
+
+  usersSchema.methods.hashPassword = function(password) {
+    var cipher = Promise.promisify(bcrypt.hash);
+    return cipher(password, null, null).bind(this)
+        .then(function(hash) {
+          this.set('password', hash);
+        });
+  };
+
 });
 
-mongoose.connect('mongodb://' + 'localhost:' + '27017' + '/db');
+db.connect('mongodb://' + 'localhost:' + '27017' + '/db');
+
+module.exports = db;
+
+
+
+
+
+
+
+
+/*
+var User = db.Model.extend({
+  tableName: 'users',
+  hasTimestamps: true,
+  initialize: function() {
+    this.on('creating', this.hashPassword);
+  },
+  comparePassword: function(attemptedPassword, callback) {
+    bcrypt.compare(attemptedPassword, this.get('password'), function(err, isMatch) {
+      callback(isMatch);
+    });
+  },
+  hashPassword: function() {
+    var cipher = Promise.promisify(bcrypt.hash);
+    return cipher(this.get('password'), null, null).bind(this)
+      .then(function(hash) {
+        this.set('password', hash);
+      });
+  }
+});
+
+
+var Link = db.Model.extend({
+  tableName: 'urls',
+  hasTimestamps: true,
+  defaults: {
+    visits: 0
+  },
+  initialize: function() {
+    this.on('creating', function(model, attrs, options) {
+      var shasum = crypto.createHash('sha1');
+      shasum.update(model.get('url'));
+      model.set('code', shasum.digest('hex').slice(0, 5));
+    });
+  }
+});*/
+
 
 /*var path = require('path');
 var knex = require('knex')({
@@ -65,4 +132,3 @@ db.knex.schema.hasTable('users').then(function(exists) {
   }
 });*/
 
-module.exports = db;
