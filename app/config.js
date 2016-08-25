@@ -1,4 +1,32 @@
-var path = require('path');
+var mongoose = require('mongoose');
+
+var db = mongoose.connection;
+
+db.on('error', console.error);
+db.once('open', function() {
+  var urlsSchema = new mongoose.Schema({
+    url: String,
+    baseUrl: String,
+    code: String,
+    title: String,
+    visits: Number,
+    timestamps: true
+  });
+
+  var Link = mongoose.model('Link', urlsSchema);
+
+  var usersSchema = new mongoose.Schema({
+    username: String,
+    password: String,
+    timestamps: true
+  });
+
+  var User = mongoose.model('User', usersSchema);
+});
+
+mongoose.connect('mongodb://' + 'localhost:' + '27017' + '/db');
+
+/*var path = require('path');
 var knex = require('knex')({
   client: 'sqlite3',
   connection: {
@@ -35,6 +63,6 @@ db.knex.schema.hasTable('users').then(function(exists) {
       console.log('Created Table', table);
     });
   }
-});
+});*/
 
 module.exports = db;
