@@ -13,7 +13,7 @@ db.once('open', function() {
     code: String,
     title: String,
     visits: {type: Number, default: 0},
-    timestamps: true
+    timestamps: {type: Date, default: Date.now}
   });
 
   urlsSchema.method.generateCode = function(url) {
