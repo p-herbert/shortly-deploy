@@ -5,9 +5,9 @@ module.exports = function(grunt) {
     concat: {
       options: {seperator: ';'},
       client: { src: ['public/client/**/*.js'],
-                dest: 'public/dist/client.min.js'},
+                dest: 'public/dist/client.concat.js'},
       libs: { src: ['public/lib/jquery.js', 'public/lib/underscore.js', 'public/lib/backbone.js', 'public/lib/handlebars.js'], 
-             dest: 'public/dist/lib.min.js'}
+             dest: 'public/dist/lib.concat.js'}
     },
 
     mochaTest: {
@@ -29,19 +29,23 @@ module.exports = function(grunt) {
       options: {
         banner: '/*! <%= pkg.name %> <%= grunt.template.today("yyyy-mm-dd") %> */\n'
       },
-      dist: {
-        src: 'src/<%= pkg.name %>.js',
-        dest: 'dist/<%= pkg.name %>.min.js'
-      }
+      client: { src: ['public/client/**/*.js'],
+                dest: 'public/dist/client.min.js'},
+      libs: { src: ['public/lib/jquery.js', 'public/lib/underscore.js', 'public/lib/backbone.js', 'public/lib/handlebars.js'], 
+             dest: 'public/dist/lib.min.js'}
     },
 
     eslint: {
       target: [
-        'server.js', 'server-config.js', 'lib/**/*.js'
+        'server.js', 'server-config.js', 'app/**/*.js'
       ]
     },
 
     cssmin: {
+      minify: {
+        src: 'public/*.css',
+        dest: 'public/dist/styles.min.css'
+      }
     },
 
     watch: {
@@ -93,6 +97,7 @@ module.exports = function(grunt) {
 
   grunt.registerTask('upload', function(n) {
     if (grunt.option('prod')) {
+      console.log('hi');
       // add your production server task here
     } else {
       grunt.task.run([ 'server-dev' ]);
