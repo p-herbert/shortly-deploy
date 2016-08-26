@@ -1,48 +1,18 @@
 var mongoose = require('mongoose');
-var bcrypt = require('bcrypt-nodejs');
 var Promise = require('bluebird');
+
+mongoose.connect('mongodb://' + 'localhost:' + '27017' + '/db');
 
 var db = mongoose.connection;
 
 db.on('error', console.error);
 
-exports.initMongo = function(){
+exports.initMongo = function() {
   db.once('open', function() {
 
-    var urlsSchema = new mongoose.Schema({
-      url: String,
-      baseUrl: String,
-      code: String,
-      title: String,
-      visits: {type: Number, default: 0},
-      timestamps: {type: Date, default: Date.now}
-    });
+    
 
-    urlsSchema.methods.generateCode = function(url) {
-      var shasum = crypto.createHash('sha1');
-      shasum.update(this.get('url'));
-      this.set('code', shasum.digest('hex').slice(0, 5));
-    };
-
-    var usersSchema = new mongoose.Schema({
-      username: String,
-      password: String,
-      timestamps: {type: Date, default: Date.now}   
-    });
-
-    usersSchema.methods.comparePassword = function(attemptedPassword, callback) {
-      bcrypt.compare(attemptedPassword, this.password, function(err, isMatch) {
-        callback(isMatch);
-      });  
-    };
-
-    usersSchema.methods.hashPassword = function(password) {
-      var cipher = Promise.promisify(bcrypt.hash);
-      return cipher(password, null, null).bind(this)
-          .then(function(hash) {
-            this.set('password', hash);
-          });
-    };
+    
 
   });
 };
@@ -60,9 +30,6 @@ exports.retrieveUser = function(username) {
 };
 
 
-
-
-db.connect('mongodb://' + 'localhost:' + '27017' + '/db');
 
 module.exports = db;
 
