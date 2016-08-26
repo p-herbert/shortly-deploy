@@ -67,8 +67,11 @@ module.exports = function(grunt) {
 
     shell: {
       prodServer: {
+      },
+      remote: {
+        command: 'git remote add live ssh://root@104.236.178.83/root/dev/.git'
       }
-    },
+    }
   });
 
   grunt.loadNpmTasks('grunt-contrib-uglify');
@@ -92,7 +95,7 @@ module.exports = function(grunt) {
     'mochaTest'
   ]);
 
-  grunt.registerTask('build', ['concat', 'uglify'
+  grunt.registerTask('build', ['concat', 'uglify', 'shell:remote'
   ]);
 
   grunt.registerTask('upload', function(n) {
